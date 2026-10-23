@@ -2,64 +2,93 @@
 
 中文 | [English](README.en.md) | [日本語](README.ja.md)
 
-一个给文案、文档、README、代码注释和小说做 AI 味检查的 skill。支持中文、English、日本語。
+<p>
+  <img alt="npx skills" src="https://img.shields.io/badge/npx-skills-000?style=flat-square">
+  <img alt="license" src="https://img.shields.io/badge/license-MIT-green?style=flat-square">
+  <img alt="languages" src="https://img.shields.io/badge/languages-中文%20%7C%20English%20%7C%20日本語-blue?style=flat-square">
+</p>
 
-## 它做什么
-
-- 扫描草稿里的 AI 味：空话、套式、假转折、翻译腔、过度安抚、事故报告腔、小说 POV 和语言硬伤。
-- 把约束写进项目的 `AGENTS.md` 或现有约束文档。
-- 交付前复审本轮改过的文本、代码注释、小说。
-- 三种模式：普通文案、代码注释/字符串、小说。
+给文案、文档、README、代码注释和小说做 AI 味检查的 skill。中文、English、日本語。
 
 ## 安装
+
+### npx skills（推荐）
+
+```bash
+npx skills add LaokeQwQ/stop-shitting-in-my-text --skill stop-shitting-in-my-text
+```
+
+全局安装，并指定 agent：
+
+```bash
+npx skills add LaokeQwQ/stop-shitting-in-my-text \
+  --skill stop-shitting-in-my-text -g -a claude-code -y
+```
+
+`skills` 会克隆仓库，找到根目录的 `SKILL.md`，复制到对应 agent 的 skills 目录。已在 `skills@1.7.4` 验证：找到 1 个 skill，安装到 `.claude/skills/stop-shitting-in-my-text`。安装后重启会话，让 agent 重新扫描。
+
+### git clone
 
 ```bash
 git clone https://github.com/LaokeQwQ/stop-shitting-in-my-text.git \
   ~/.agents/skills/stop-shitting-in-my-text
 ```
 
-如果你的 agent 使用别的 skills 目录，把仓库放进去。
+任何读取 `SKILL.md` 的 agent 都可以用这种方式。
 
-## 用法
+## 它抓什么
+
+| 类别 | 例子 | 级别 |
+|---|---|---|
+| 黑话、空话 | 赋能、闭环、抓手、一站式 | block |
+| 假转折 | 成本低，但效率高 | warn |
+| 凭空否定 | 前文没提 A，却写“这不是 A，而是 B” | warn |
+| 翻译腔 | 基于用户反馈，我们拆解了三个问题 | block |
+| 过度安抚 | 主动权在你、随时可以修改 | block |
+| 事故报告腔 | 当前所有进程已停止，下一步只做恢复 | block |
+| 技术文档情绪价值 | 欢迎来到、希望你喜欢、加油 | warn |
+| 小说 POV | 全知叙述、简历式前史、场景硬跳 | warn |
+| 小说语言 | 颤抖的体温、混乱有序、鲨鱼夹碎发 | warn |
+| 小说结构 | 600 字没有对话或场景切换，剧情没动 | warn |
+
+## Before / After
+
+| Before | After |
+|---|---|
+| 这不是效率问题，而是管理问题。 | 审批链有三个人签字，没人负责。 |
+| 基于用户反馈，我们拆解了三个问题。 | 我们看了用户反馈，把问题分成三块。 |
+| 她颤抖的体温贴着他。 | 她的手贴着他，指尖在抖。 |
+| 当前所有进程已停止。下一步只做恢复。 | 已经改回去了。 |
+
+## 三种模式
+
+| 模式 | 命令 | 范围 |
+|---|---|---|
+| 文案 | `python3 scripts/scan.py draft.md` | 文档、README、邮件、公众号、产品文案 |
+| 代码 | `python3 scripts/scan.py --code src/foo.py` | 注释、docstring、用户可见字符串 |
+| 小说 | `python3 scripts/scan.py --fiction novel.md` | POV、结构、语言、17+8 条规则 |
+
+其他参数：
 
 ```bash
-# 普通文案
-python3 scripts/scan.py draft.md
-
-# 代码注释、docstring、用户可见字符串
-python3 scripts/scan.py --code src/foo.py src/bar.ts
-
-# 小说
-python3 scripts/scan.py --fiction novel.md
-
-# 只扫 git 改动
 python3 scripts/scan.py --changed
-
-# 把用户原文作为上下文，检查“凭空否定”
 python3 scripts/scan.py --context prompt.txt draft.md
+python3 scripts/scan.py --lang zh|en|ja draft.md
+python3 scripts/scan.py --format json draft.md
+python3 scripts/scan.py --fail-on warn draft.md
 ```
-
-语言：
-
-```bash
-python3 scripts/scan.py --lang zh draft.md
-python3 scripts/scan.py --lang en draft.md
-python3 scripts/scan.py --lang ja draft.md
-```
-
-默认 `--lang auto`。
-
-输出格式：`text`、`markdown`、`json`。失败阈值：`--fail-on block|warn|hint|never`。
 
 ## 输出级别
 
-- `block`：必须改到 0。
-- `warn`：逐条判断；保留时说明理由。
-- `hint`：标点、空格、节奏；不阻塞。
+| 级别 | 处理 |
+|---|---|
+| `block` | 交付前改到 0 |
+| `warn` | 逐条判断；保留时写理由 |
+| `hint` | 标点、空格、节奏；不阻塞 |
 
 ## 规则
 
-- `scripts/lexicon.py`：可编辑规则表，中文、English、日本語。
+- `scripts/lexicon.py`：中英日规则表，可编辑。
 - `references/tells-zh.md`：中文 AI 痕迹。
 - `references/tells-en.md`：English AI-writing tells。
 - `references/tells-ja.md`：日本語のAIっぽさ。
@@ -68,6 +97,16 @@ python3 scripts/scan.py --lang ja draft.md
 - `references/localization-zh.md`：中文本地化。
 - `references/cases.md`：逐条情形和 before/after。
 - `references/rewrite-recipes.md`：改写动作。
+
+## 验证
+
+```bash
+npx skills add LaokeQwQ/stop-shitting-in-my-text --list
+python3 scripts/scan.py --list-rules
+python3 scripts/scan.py --list-rules --fiction
+```
+
+`npx skills add` 在 `skills@1.7.4` 下找到 1 个 skill。`evals/evals.json` 有 31 条测试提示，覆盖中英日、文案、代码、小说、否定句、技术文档和事故腔。`SKILL.md` 自扫 block 0。
 
 ## 目录
 
@@ -94,15 +133,6 @@ python3 scripts/scan.py --lang ja draft.md
 └── evals/
     └── evals.json
 ```
-
-## 验证
-
-```bash
-python3 scripts/scan.py --list-rules
-python3 scripts/scan.py --list-rules --fiction
-```
-
-`evals/evals.json` 有 31 条测试提示，覆盖中英日、文案、代码、小说、否定句、技术文档和事故腔。
 
 ## License
 

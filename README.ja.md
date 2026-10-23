@@ -2,60 +2,89 @@
 
 [中文](README.md) | [English](README.en.md) | 日本語
 
+<p>
+  <img alt="npx skills" src="https://img.shields.io/badge/npx-skills-000?style=flat-square">
+  <img alt="license" src="https://img.shields.io/badge/license-MIT-green?style=flat-square">
+  <img alt="languages" src="https://img.shields.io/badge/languages-中文%20%7C%20English%20%7C%20日本語-blue?style=flat-square">
+</p>
+
 文案・ドキュメント・README・コードコメント・小説のAIっぽさを検査するskillです。中国語・英語・日本語に対応しています。
 
-## できること
-
-- 草稿のAIっぽさを検査します。空疎な語彙、定型構文、偽の対比、翻訳調、過剰な安心させ方、事故報告のような文体、小説のPOVと語の誤りが対象です。
-- 制約をプロジェクトの `AGENTS.md` または既存の制約ドキュメントに書き込みます。
-- そのターンで変更した文章、コードコメント、小説を納品前に再検査します。
-- モードは三つです。通常の文章、コードコメントと文字列、小説。
-
 ## インストール
+
+### npx skills（推奨）
+
+```bash
+npx skills add LaokeQwQ/stop-shitting-in-my-text --skill stop-shitting-in-my-text
+```
+
+グローバルに入れて、agentを指定する場合:
+
+```bash
+npx skills add LaokeQwQ/stop-shitting-in-my-text \
+  --skill stop-shitting-in-my-text -g -a claude-code -y
+```
+
+`skills` はリポジトリをcloneし、ルートの `SKILL.md` を見つけて、agentのskillsディレクトリへコピーします。`skills@1.7.4` で確認済みです。skillが1件見つかり、`.claude/skills/stop-shitting-in-my-text` へ入りました。インストール後にセッションを再起動すると、agentがskillsを読み直します。
+
+### git clone
 
 ```bash
 git clone https://github.com/LaokeQwQ/stop-shitting-in-my-text.git \
   ~/.agents/skills/stop-shitting-in-my-text
 ```
 
-agentが別のskillsディレクトリを使う場合は、そこに置いてください。
+`SKILL.md` を読むagentなら、この方法でも使えます。
 
-## 使い方
+## 検査するもの
+
+| 種類 | 例 | レベル |
+|---|---|---|
+| 空疎な語彙 | ソリューション、シームレス、圧倒的 | warn/block |
+| 偽の対比 | コストは低いが、効率は高い。 | warn |
+| 根拠のない否定 | 前文にAがないのに「AではなくB」と書く | warn |
+| 翻訳調 | ユーザーの声をもとに、課題を三つに分解しました。 | block |
+| 過剰な安心させ方 | ご安心ください。いつでも変更できます。 | block |
+| 事故報告のような文体 | すべてのプロセスが停止しました。次は復旧だけです。 | block |
+| 技術文書の情緒 | ようこそ。楽しんで使ってください。 | warn |
+| 小説のPOV | 全知の語り、履歴書のような過去、場面の唐突な切り替え | warn |
+| 小説の言葉 | 震える体温、混沌とした秩序、鯊魚夾の髪 | warn |
+| 小説の構成 | 600字で会話も場面転換もなく、物語が動かない | warn |
+
+## Before / After
+
+| Before | After |
+|---|---|
+| これは効率の問題ではなく、管理の問題です。 | 承認には三人の署名が必要で、責任者がいません。 |
+| ユーザーの声をもとに、課題を三つに分解しました。 | ユーザーの声を読み、課題を三つに分けました。 |
+| 彼女は震える体温を彼に押し当てた。 | 彼女の手が彼に触れた。指先が震えていた。 |
+| すべてのプロセスが停止しました。次は復旧だけです。 | 元に戻しました。 |
+
+## モード
+
+| モード | コマンド | 対象 |
+|---|---|---|
+| 通常の文章 | `python3 scripts/scan.py draft.md` | ドキュメント、README、メール、文案 |
+| コード | `python3 scripts/scan.py --code src/foo.py` | コメント、docstring、ユーザーに見える文字列 |
+| 小説 | `python3 scripts/scan.py --fiction novel.md` | POV、構成、言葉、17+8件のルール |
+
+その他のオプション:
 
 ```bash
-# 通常の文章
-python3 scripts/scan.py draft.md
-
-# コードコメント、docstring、ユーザーに見える文字列
-python3 scripts/scan.py --code src/foo.py src/bar.ts
-
-# 小説
-python3 scripts/scan.py --fiction novel.md
-
-# gitの変更だけ
 python3 scripts/scan.py --changed
-
-# ユーザーの入力を渡して、根拠のない否定を検査
 python3 scripts/scan.py --context prompt.txt draft.md
+python3 scripts/scan.py --lang zh|en|ja draft.md
+python3 scripts/scan.py --format json draft.md
+python3 scripts/scan.py --fail-on warn draft.md
 ```
 
-言語:
+## レベル
 
-```bash
-python3 scripts/scan.py --lang zh draft.md
-python3 scripts/scan.py --lang en draft.md
-python3 scripts/scan.py --lang ja draft.md
-```
-
-既定は `--lang auto` です。
-
-出力形式は `text`、`markdown`、`json` です。失敗の基準は `--fail-on block|warn|hint|never` で変えられます。
-
-## 出力レベル
-
-- `block`: 納品前に0にします。
-- `warn`: 一件ずつ判断します。残す場合は理由を書きます。
-- `hint`: 句読点、空白、リズム。納品は止めません。
+| レベル | 対応 |
+|---|---|
+| `block` | 納品前に0にします |
+| `warn` | 一件ずつ判断します。残す場合は理由を書きます |
+| `hint` | 句読点、空白、リズム。納品は止めません |
 
 ## ルール
 
@@ -68,6 +97,16 @@ python3 scripts/scan.py --lang ja draft.md
 - `references/localization-zh.md`: 中国語のローカライズ。
 - `references/cases.md`: ケース別の例とbefore/after。
 - `references/rewrite-recipes.md`: 書き換えの手順。
+
+## 検証
+
+```bash
+npx skills add LaokeQwQ/stop-shitting-in-my-text --list
+python3 scripts/scan.py --list-rules
+python3 scripts/scan.py --list-rules --fiction
+```
+
+`npx skills add` は `skills@1.7.4` でskillを1件見つけます。`evals/evals.json` に31件のテスト用プロンプトがあります。中国語、英語、日本語、通常の文章、コード、小説、否定、技術文書、事故報告のような文体を対象にしています。`SKILL.md` の自己検査は block 0 です。
 
 ## ディレクトリ
 
@@ -94,15 +133,6 @@ python3 scripts/scan.py --lang ja draft.md
 └── evals/
     └── evals.json
 ```
-
-## 検証
-
-```bash
-python3 scripts/scan.py --list-rules
-python3 scripts/scan.py --list-rules --fiction
-```
-
-`evals/evals.json` に31件のテスト用プロンプトがあります。中国語、英語、日本語、通常の文章、コード、小説、否定、技術文書、事故報告のような文体を対象にしています。
 
 ## License
 
