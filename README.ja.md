@@ -46,6 +46,8 @@ git clone https://github.com/LaokeQwQ/stop-shitting-in-my-text.git \
 | 翻訳調 | ユーザーの声をもとに、課題を三つに分解しました。 | block |
 | 過剰な安心させ方 | ご安心ください。いつでも変更できます。 | block |
 | 事故報告のような文体 | すべてのプロセスが停止しました。次は復旧だけです。 | block |
+| プロセス劇 | 探針、スナップショット、ゲート、89件のチェック、12時間で3/10,000本 | block/warn |
+| 紫色の散文 | 神、寵愛、メス、极其极其 | block |
 | 技術文書の情緒 | ようこそ。楽しんで使ってください。 | warn |
 | 小説のPOV | 全知の語り、履歴書のような過去、場面の唐突な切り替え | warn |
 | 小説の言葉 | 震える体温、混沌とした秩序、鯊魚夾の髪 | warn |
@@ -92,8 +94,8 @@ python3 scripts/scan.py --fail-on warn draft.md
 - `references/tells-zh.md`: 中国語のAIっぽさ。
 - `references/tells-en.md`: 英語のAIっぽさ。
 - `references/tells-ja.md`: 日本語のAIっぽさ。
-- `references/fiction-tells.md`: 小説のルール17件と補足8件。
-- `references/plain-language.md`: 一般的な文章チェック10件。
+- `references/fiction-tells.md`: 小説のルール17件と補足9件。
+- `references/plain-language.md`: 一般的な文章チェック。
 - `references/localization-zh.md`: 中国語のローカライズ。
 - `references/cases.md`: ケース別の例とbefore/after。
 - `references/rewrite-recipes.md`: 書き換えの手順。
@@ -106,7 +108,7 @@ python3 scripts/scan.py --list-rules
 python3 scripts/scan.py --list-rules --fiction
 ```
 
-`npx skills add` は `skills@1.7.4` でskillを1件見つけます。`evals/evals.json` に31件のテスト用プロンプトがあります。中国語、英語、日本語、通常の文章、コード、小説、否定、技術文書、事故報告のような文体を対象にしています。`SKILL.md` の自己検査は block 0 です。
+`npx skills add` は `skills@1.7.4` でskillを1件見つけます。`evals/evals.json` に34件のテスト用プロンプトがあります。中国語、英語、日本語、通常の文章、コード、小説、否定、技術文書、事故報告のような文体を対象にしています。`SKILL.md` の自己検査は block 0 です。
 
 ## ディレクトリ
 

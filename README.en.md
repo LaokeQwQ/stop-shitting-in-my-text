@@ -46,6 +46,8 @@ This works with any agent that reads `SKILL.md`.
 | Translationese | Based on user feedback, we broke down three issues. | block |
 | Reassurance | You're in control. Feel free to modify this. | block |
 | Incident-report theater | All processes have stopped. Next step is recovery only. | block |
+| Process theater | probes, snapshots, gates, 89 checks, 12 hours for 3/10,000 toothpicks | block/warn |
+| Purple prose | gods, doting, scalpel, 极其极其 | block |
 | Emotional value in docs | Welcome to SuperTool! Happy coding! | warn |
 | Fiction POV | Omniscient narration, resume-style backstory, hard scene jump | warn |
 | Fiction language | trembling body temperature, chaotic order, shark-clip hair | warn |
@@ -92,8 +94,8 @@ python3 scripts/scan.py --fail-on warn draft.md
 - `references/tells-zh.md`: Chinese AI tells.
 - `references/tells-en.md`: English AI-writing tells.
 - `references/tells-ja.md`: Japanese AI tells.
-- `references/fiction-tells.md`: 17 fiction rules plus 8 supplements.
-- `references/plain-language.md`: 10 general plain-language checks.
+- `references/fiction-tells.md`: 17 fiction rules plus 9 supplements.
+- `references/plain-language.md`: general plain-language checks.
 - `references/localization-zh.md`: Chinese localization.
 - `references/cases.md`: case-by-case examples and before/after.
 - `references/rewrite-recipes.md`: rewrite moves.
@@ -106,7 +108,7 @@ python3 scripts/scan.py --list-rules
 python3 scripts/scan.py --list-rules --fiction
 ```
 
-`npx skills add` finds one skill under `skills@1.7.4`. `evals/evals.json` has 31 prompts covering Chinese, English, Japanese, prose, code, fiction, negation, technical docs, and incident-report tone. Self-scan of `SKILL.md`: block 0.
+`npx skills add` finds one skill under `skills@1.7.4`. `evals/evals.json` has 34 prompts covering Chinese, English, Japanese, prose, code, fiction, negation, technical docs, and incident-report tone. Self-scan of `SKILL.md`: block 0.
 
 ## Layout
 

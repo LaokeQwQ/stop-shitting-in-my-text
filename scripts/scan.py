@@ -28,7 +28,8 @@ HERE = Path(__file__).resolve().parent
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
-from lexicon import FICTION_RULES, METRICS, RULES  # noqa: E402
+from lexicon import (FICTION_EXCLUDE, FICTION_RULES, METRICS,
+                     PROCESS_MARKERS, PURPLE_MARKERS, RULES)  # noqa: E402
 
 TEXT_EXT = {
     ".md", ".markdown", ".mdx", ".txt", ".text", ".rst", ".adoc", ".org",
@@ -236,11 +237,11 @@ def _cv(values):
 def metric_findings(masked, units, fiction=False):
     findings = []
 
-    def add(rule, severity, match, why, fix):
+    def add(rule, severity, match, why, fix, category="节奏"):
         findings.append({
             "rule": rule,
             "severity": severity,
-            "category": "节奏",
+            "category": category,
             "match": match,
             "excerpt": "",
             "why": why,
@@ -336,6 +337,36 @@ def metric_findings(masked, units, fiction=False):
                 "篇幅在走，剧情可能没动；读者读完不知道发生了什么变化。",
                 "压缩日常流程，跳到有变化的那一刻；或者加一条并行的线。")
 
+    if not fiction:
+        process_hits = [m for m in PROCESS_MARKERS if m in masked]
+        if len(process_hits) >= 3:
+            add("zh-process-theater", "block",
+                "、".join(process_hits[:8]),
+                "方法名词堆在普通任务上，用户看不到结果，只看到流程表演。",
+                "先做任务；结果和验证写 1-3 句。发布或运维流程是用户要求时才写。",
+                category="语用")
+
+        for match in re.finditer(
+                r"已(?:完成|转移|处理|迁移|校验|部署)\s*(\d[\d,]*)\s*/\s*(\d[\d,]*)",
+                masked):
+            done = int(match.group(1).replace(",", ""))
+            total = int(match.group(2).replace(",", ""))
+            if total > 0 and done / float(total) < 0.5:
+                add("zh-partial-delivery", "warn",
+                    "%d/%d" % (done, total),
+                    "过程说明替代了剩余工作；完成比例低于一半。",
+                    "继续做完，或说明阻塞、下一步和时间。",
+                    category="交付")
+
+    if fiction:
+        purple_hits = [m for m in PURPLE_MARKERS if m in masked]
+        if len(purple_hits) >= 3:
+            add("fic-purple-prose", "block",
+                "、".join(purple_hits[:8]),
+                "连续的高音：形容词、宗教意象、手术刀、宠溺；读者只看到表演，看不到人物。",
+                "删掉形容词和比喻，写一个动作、一个停顿、一句具体的话。",
+                category="小说-语域")
+
     quotes = masked.count("“")
     if quotes >= 6 and quotes * 1000.0 / units > 8:
         add("metric-quote-density", "hint",
@@ -393,7 +424,9 @@ def scan_text(text, path, forced_lang="auto", max_per_rule=20, code=False,
     langs = active_langs(masked, forced_lang)
 
     raw = []
-    rules = RULES + (FICTION_RULES if fiction_mode else [])
+    base_rules = [r for r in RULES
+                  if not (fiction_mode and r["id"] in FICTION_EXCLUDE)]
+    rules = base_rules + (FICTION_RULES if fiction_mode else [])
     for rule in rules:
         if not (set(rule["langs"]) & (langs | {"any"})):
             continue
@@ -448,7 +481,8 @@ def scan_text(text, path, forced_lang="auto", max_per_rule=20, code=False,
         if not ruled_out:
             kept.append(finding)
 
-    context_findings = unmotivated_negation_findings(text, masked, context, lines)
+    context_findings = ([] if fiction_mode
+                        else unmotivated_negation_findings(text, masked, context, lines))
     if context_findings:
         kept = [f for f in kept if not (
             f["rule"] == "zh-negative-escalation"

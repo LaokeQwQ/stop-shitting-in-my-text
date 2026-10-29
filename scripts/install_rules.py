@@ -22,7 +22,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-BEGIN = "<!-- stop-shitting-in-my-text:begin v2 -->"
+BEGIN = "<!-- stop-shitting-in-my-text:begin v3 -->"
 END = "<!-- stop-shitting-in-my-text:end -->"
 BLOCK = BEGIN + """
 ## 文案约束：别在我的文案里拉屎
@@ -39,6 +39,7 @@ BLOCK = BEGIN + """
 8. README、技术文档、代码注释默认干练，只给信息；用户明确要求友好语气时按用户。
 9. 只回应用户输入里存在的内容；不造反对意见、不自问自答；开头直接给结果。否定句先查 A：前文或用户输入没出现，就删掉否定直接写 B；不把思维链里的备选写进正文。
 10. 交付前跑 `scan.py`（小说用 `--fiction`）；`block` 清零，`warn` 逐条判断。
+11. 先给结果；可数任务报总数、完成数、剩余数；过程术语只在用户要求时出现；不写“分析中/检查中/马上就好”。
 
 具体模式由 `scripts/lexicon.py` 维护。扫描命令：
 `python3 ~/.agents/skills/stop-shitting-in-my-text/scripts/scan.py <files>`
